@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { CSSProperties, useState } from 'react';
 import { Chess, Move, Square } from 'chess.js';
 
 import { Chessboard } from 'react-chessboard';
@@ -23,7 +23,7 @@ export default function ChessBoard() {
       setOptionSquares({});
       return false;
     }
-    const newSquares: { [key: string]: any } = {};
+    const newSquares: { [key: string]: CSSProperties } = {};
     moves.map((move) => {
       newSquares[move.to] = {
         background:
