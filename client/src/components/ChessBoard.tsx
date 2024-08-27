@@ -42,14 +42,6 @@ export default function ChessBoard() {
     return true;
   }
 
-  function makeRandomMove() {
-    const possibleMoves = game.moves();
-    if (game.game_over() || game.in_draw() || possibleMoves.length === 0)
-      return; // exit if the game is over
-    const randomIndex = Math.floor(Math.random() * possibleMoves.length);
-    makeAMove(possibleMoves[randomIndex]);
-  }
-
   function onDrop(sourceSquare: Square, targetSquare: Square) {
     const move = makeAMove({
       from: sourceSquare,
@@ -63,7 +55,6 @@ export default function ChessBoard() {
 
     // illegal move
     if (move === null) return false;
-    setTimeout(makeRandomMove, 200);
     return true;
   }
 
@@ -76,16 +67,21 @@ export default function ChessBoard() {
   }
 
   return (
-    <Chessboard
-      animationDuration={200}
-      onSquareClick={onSquareClick}
-      onPieceDragBegin={onPieceDragBegin}
-      onPieceDragEnd={() => setOptionSquares({})}
-      position={game.fen()}
-      onPieceDrop={onDrop}
-      customSquareStyles={{
-        ...optionSquares,
-      }}
-    />
+    <>
+      <Chessboard
+        animationDuration={200}
+        onSquareClick={onSquareClick}
+        onPieceDragBegin={onPieceDragBegin}
+        onPieceDragEnd={() => setOptionSquares({})}
+        position={game.fen()}
+        onPieceDrop={onDrop}
+        customSquareStyles={{
+          ...optionSquares,
+        }}
+      />
+      {/* TODO Zrobić jakoś ładnie wizualnie ze ktos wygrał albo jest remis */}
+      {game.game_over() && alert('Ktos tam wygrał')}
+      {game.in_draw() && alert('Remis')}
+    </>
   );
 }
