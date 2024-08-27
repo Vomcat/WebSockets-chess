@@ -71,7 +71,7 @@ export default function ChessBoard() {
     getMoveOptions(square);
   }
 
-  function onPieceDragBegin(piece: string, sourceSquare: Square): any {
+  function onPieceDragBegin(_piece: string, sourceSquare: Square): any {
     getMoveOptions(sourceSquare);
   }
 
