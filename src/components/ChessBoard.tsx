@@ -8,8 +8,6 @@ export default function ChessBoard() {
   const [optionSquares, setOptionSquares] = useState({});
 
   function makeAMove(move: Move | string) {
-    console.log(move);
-    // getMoveOptions(move);
     const gameCopy = { ...game };
     const result = gameCopy.move(move);
     setGame(gameCopy);
@@ -70,7 +68,6 @@ export default function ChessBoard() {
   }
 
   function onSquareClick(square: Square) {
-    console.log('klik', square);
     getMoveOptions(square);
   }
 
