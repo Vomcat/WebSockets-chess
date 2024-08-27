@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Chess } from 'chess.js';
+import { Chess, Move, Square } from 'chess.js';
 
 import { Chessboard } from 'react-chessboard';
 
@@ -7,7 +7,7 @@ export default function ChessBoard() {
   const [game, setGame] = useState(new Chess());
   const [optionSquares, setOptionSquares] = useState({});
 
-  function makeAMove(move: any) {
+  function makeAMove(move: Move | string) {
     console.log(move);
     // getMoveOptions(move);
     const gameCopy = { ...game };
@@ -16,7 +16,7 @@ export default function ChessBoard() {
     return result; // null if the move was illegal, the move object if the move was legal
   }
 
-  function getMoveOptions(square: any) {
+  function getMoveOptions(square: Square) {
     const moves = game.moves({
       square,
       verbose: true,
@@ -25,7 +25,7 @@ export default function ChessBoard() {
       setOptionSquares({});
       return false;
     }
-    const newSquares: any = {};
+    const newSquares: { [key: string]: any } = {};
     moves.map((move) => {
       newSquares[move.to] = {
         background:
@@ -52,11 +52,15 @@ export default function ChessBoard() {
     makeAMove(possibleMoves[randomIndex]);
   }
 
-  function onDrop(sourceSquare: any, targetSquare: any) {
+  function onDrop(sourceSquare: Square, targetSquare: Square) {
     const move = makeAMove({
       from: sourceSquare,
       to: targetSquare,
-      promotion: 'q', // always promote to a queen for example simplicity
+      promotion: 'q',
+      color: 'b',
+      flags: '',
+      piece: 'b',
+      san: '',
     });
 
     // illegal move
@@ -65,15 +69,21 @@ export default function ChessBoard() {
     return true;
   }
 
-  function onSquareClick(square: any) {
+  function onSquareClick(square: Square) {
     console.log('klik', square);
     getMoveOptions(square);
+  }
+
+  function onPieceDragBegin(piece: string, sourceSquare: Square): any {
+    getMoveOptions(sourceSquare);
   }
 
   return (
     <Chessboard
       animationDuration={200}
       onSquareClick={onSquareClick}
+      onPieceDragBegin={onPieceDragBegin}
+      onPieceDragEnd={() => setOptionSquares({})}
       position={game.fen()}
       onPieceDrop={onDrop}
       customSquareStyles={{
