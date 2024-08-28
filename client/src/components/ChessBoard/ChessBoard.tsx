@@ -25,11 +25,13 @@ export default function ChessBoard({ gameMode = 'playerVsPlayer' }: Props) {
   const game = useMemo(() => new Chess(), []);
   const [optionSquares, setOptionSquares] = useState({});
   const [gamePosition, setGamePosition] = useState(game.fen());
-  const engine = useMemo(() => new Engine(), []);
+  const engine = useMemo(() => {
+    if (gameMode === 'playerVsComputer') return new Engine();
+  }, []);
 
   function computerMove() {
-    engine.evaluatePosition(game.fen(), 10);
-    engine.onMessage(({ bestMove }: { bestMove: any }) => {
+    engine!.evaluatePosition(game.fen(), 10);
+    engine!.onMessage(({ bestMove }: { bestMove: any }) => {
       if (bestMove) {
         game.move({
           from: bestMove.substring(0, 2),
