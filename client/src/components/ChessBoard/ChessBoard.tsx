@@ -1,17 +1,45 @@
-import { CSSProperties, useState } from 'react';
-import { Chess, Move, Square } from 'chess.js';
+import { CSSProperties, useMemo, useState } from 'react';
+import { Chess, Square } from 'chess.js';
 
 import { Chessboard } from 'react-chessboard';
+import Engine from './engine';
 
-export default function ChessBoard() {
-  const [game, setGame] = useState(new Chess());
+interface Props {
+  gameMode?: 'playerVsPlayer' | 'playerVsComputer';
+}
+
+const players = [
+  {
+    id: 1,
+    name: 'Daniel',
+    color: 'w',
+  },
+  {
+    id: 2,
+    name: 'Weronika',
+    color: 'b',
+  },
+];
+
+export default function ChessBoard({ gameMode = 'playerVsPlayer' }: Props) {
+  const game = useMemo(() => new Chess(), []);
   const [optionSquares, setOptionSquares] = useState({});
+  const [gamePosition, setGamePosition] = useState(game.fen());
+  const engine = useMemo(() => new Engine(), []);
 
-  function makeAMove(move: Move | string) {
-    const gameCopy = { ...game };
-    const result = gameCopy.move(move);
-    setGame(gameCopy);
-    return result; // null if the move was illegal, the move object if the move was legal
+  function computerMove() {
+    engine.evaluatePosition(game.fen(), 10);
+    engine.onMessage(({ bestMove }: { bestMove: any }) => {
+      if (bestMove) {
+        game.move({
+          from: bestMove.substring(0, 2),
+          to: bestMove.substring(2, 4),
+          promotion: bestMove.substring(4, 5),
+        });
+
+        setGamePosition(game.fen());
+      }
+    });
   }
 
   function getMoveOptions(square: Square) {
@@ -43,18 +71,18 @@ export default function ChessBoard() {
   }
 
   function onDrop(sourceSquare: Square, targetSquare: Square) {
-    const move = makeAMove({
+    const move = game.move({
       from: sourceSquare,
       to: targetSquare,
       promotion: 'q',
-      color: 'b',
-      flags: '',
-      piece: 'b',
-      san: '',
     });
+    setGamePosition(game.fen());
 
     // illegal move
     if (move === null) return false;
+    if (gameMode === 'playerVsComputer') setTimeout(computerMove, 200);
+
+    if (game.game_over() || game.in_draw()) return false;
     return true;
   }
 
@@ -73,15 +101,19 @@ export default function ChessBoard() {
         onSquareClick={onSquareClick}
         onPieceDragBegin={onPieceDragBegin}
         onPieceDragEnd={() => setOptionSquares({})}
-        position={game.fen()}
+        position={gamePosition}
         onPieceDrop={onDrop}
         customSquareStyles={{
           ...optionSquares,
         }}
       />
+      <p className="flex justify-center text-2xl mt-3">
+        Tura gracza: {players.find((obj) => obj.color === game.turn())!.name}
+      </p>
+
       {/* TODO Zrobić jakoś ładnie wizualnie ze ktos wygrał albo jest remis */}
-      {game.game_over() && alert('Ktos tam wygrał')}
-      {game.in_draw() && alert('Remis')}
+      {/* {game.game_over() && alert('Ktos tam wygrał')} */}
+      {/* {game.in_draw() && alert('Remis')} */}
     </>
   );
 }

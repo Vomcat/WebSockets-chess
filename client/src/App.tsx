@@ -1,9 +1,9 @@
-import ChessBoard from './components/ChessBoard';
+import ChessBoard from './components/ChessBoard/ChessBoard';
 
 function App() {
   return (
     <div className="w-[700px]">
-      <ChessBoard />
+      <ChessBoard gameMode="playerVsComputer" />
     </div>
   );
 }
